@@ -73,7 +73,8 @@ body {
 }
 
 .nav__menu a:hover,
-.nav__menu a:focus-visible {
+.nav__menu a:focus-visible,
+.nav__menu a.active {
   color: var(--color-accent);
   outline: none;
 }

@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>About — Keza Esther</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- ─── Navigation ──────────────────────────────────────────────────────── -->
+  <header class="site-header">
+    <nav class="nav">
+      <a class="nav__logo" href="index.html">Kesie Media</a>
+      <button
+        id="menuButton"
+        class="nav__menu-btn"
+        aria-label="Open navigation menu"
+        aria-expanded="false"
+        aria-controls="navMenu"
+      >&#9776;</button>
+      <ul id="navMenu" class="nav__menu" role="list">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="gallery.html">Gallery</a></li>
+        <li><a href="about.html" class="active">About</a></li>
+        <li><a href="contact.html">Contact</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <!-- ─── About ───────────────────────────────────────────────────────────── -->
+  <main>
+    <section id="about" class="about" aria-label="About">
+      <div class="about__inner">
+        <div class="about__image-wrap">
+          <img
+            src="photos /keza about.jpeg"
+            alt="Keza Esther — black and white portrait"
+            class="about__photo"
+            loading="lazy"
+          >
+        </div>
+        <div class="about__content">
+          <h2 class="about__heading">WHO I AM</h2>
+          <p class="about__body">
+            I am a photographer dedicated to capturing authentic moments and turning them into lasting memories.
+          </p>
+          <p class="about__body">
+            Through thoughtful composition, natural emotion, and a timeless visual style, I create images that tell stories beyond the frame. Whether it's a portrait, a special occasion, or a moment worth remembering, my goal is to make every photograph feel personal, honest, and unforgettable.
+          </p>
+          <p class="about__tagline">WELCOME TO MY WORLD THROUGH A LENS.</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>
