@@ -376,3 +376,140 @@ article.photo:focus-visible .photo-info {
     right: 12px;
   }
 }
+
+/* ─── Hero / Home section ───────────────────────────────────────────────────*/
+
+.hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 80px 24px 60px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  background-color: var(--color-bg);
+}
+
+/* Subtle radial glow behind the photo */
+.hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse 60% 55% at 50% 40%, rgba(216,181,138,0.08) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+/* ── Portrait ────────────────────────────────────────────────────────────── */
+.hero__image-wrap {
+  width: 220px;
+  height: 220px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 3px solid var(--color-accent);
+  box-shadow: 0 0 40px rgba(216, 181, 138, 0.25);
+  margin-bottom: 36px;
+  animation: heroFadeUp 0.9s ease both;
+}
+
+.hero__photo {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center top;
+}
+
+/* ── Name ────────────────────────────────────────────────────────────────── */
+.hero__name {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: clamp(2.8rem, 8vw, 6rem);
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: var(--color-text);
+  line-height: 1.1;
+  margin-bottom: 28px;
+  animation: heroFadeUp 0.9s 0.2s ease both;
+}
+
+/* ── Role words with staggered fade-in ───────────────────────────────────── */
+.hero__roles {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px 20px;
+}
+
+.hero__role {
+  font-family: 'DM Sans', 'Helvetica Neue', Arial, sans-serif;
+  font-size: clamp(0.9rem, 2.5vw, 1.15rem);
+  font-weight: 400;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--color-accent);
+  opacity: 0;
+  /* Each span has --i set inline (0, 1, 2); delay = 0.6s + i × 0.35s */
+  animation: wordFadeIn 0.8s calc(0.6s + var(--i) * 0.35s) ease forwards;
+}
+
+/* Separator dots between roles (not after the last) */
+.hero__role:not(:last-child)::after {
+  content: ' ·';
+  color: var(--color-muted);
+  margin-left: 20px;
+}
+
+/* ── Keyframes ───────────────────────────────────────────────────────────── */
+@keyframes heroFadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(28px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes wordFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+    letter-spacing: 0.32em;
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+    letter-spacing: 0.18em;
+  }
+}
+
+/* Reduced-motion: skip animations, show content immediately */
+@media (prefers-reduced-motion: reduce) {
+  .hero__image-wrap,
+  .hero__name {
+    animation: none;
+  }
+  .hero__role {
+    opacity: 1;
+    animation: none;
+  }
+}
+
+/* ── Responsive ──────────────────────────────────────────────────────────── */
+@media (max-width: 480px) {
+  .hero__image-wrap {
+    width: 170px;
+    height: 170px;
+  }
+
+  .hero__roles {
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .hero__role:not(:last-child)::after {
+    display: none;
+  }
+}
