@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Photography Portfolio</title>
+  <!-- Google Fonts: Playfair Display (titles) and DM Sans (UI) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- ─── Navigation ──────────────────────────────────────────────────────── -->
+  <header class="site-header">
+    <nav class="nav">
+      <a class="nav__logo" href="/">Portfolio</a>
+      <button
+        id="menuButton"
+        class="nav__menu-btn"
+        aria-label="Open navigation menu"
+        aria-expanded="false"
+        aria-controls="navMenu"
+      >&#9776;</button>
+      <ul id="navMenu" class="nav__menu" role="list">
+        <li><a href="#gallery">Gallery</a></li>
+        <li><a href="#about">About</a></li>
+        <li><a href="#contact">Contact</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <!-- ─── Gallery ─────────────────────────────────────────────────────────── -->
+  <!-- buildPhotoSequence() queries: article.photo img, .photo-info h3, .photo-info span -->
+  <main>
+    <section id="gallery" class="gallery" aria-label="Photo gallery">
+
+      <article class="photo">
+        <img
+          src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1200&q=80"
+          alt="Snow-capped mountain peaks at golden hour with dramatic cloud formations"
+          loading="lazy"
+        >
+        <div class="photo-info">
+          <h3>Golden Hour Summit</h3>
+          <span>Landscape</span>
+        </div>
+      </article>
+
+      <article class="photo">
+        <img
+          src="https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?w=1200&q=80"
+          alt="Misty forest path with morning light filtering through tall pine trees"
+          loading="lazy"
+        >
+        <div class="photo-info">
+          <h3>Morning Mist</h3>
+          <span>Nature</span>
+        </div>
+      </article>
+
+      <article class="photo">
+        <img
+          src="https://images.unsplash.com/photo-1519125323398-675f0ddb6308?w=1200&q=80"
+          alt="Long-exposure shot of a coastal lighthouse against a stormy night sky"
+          loading="lazy"
+        >
+        <div class="photo-info">
+          <h3>Lighthouse Vigil</h3>
+          <span>Seascape</span>
+        </div>
+      </article>
+
+      <article class="photo">
+        <img
+          src="https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=1200&q=80"
+          alt="Sun rays breaking through a dense forest canopy onto a mossy forest floor"
+          loading="lazy"
+        >
+        <div class="photo-info">
+          <h3>Cathedral Light</h3>
+          <span>Nature</span>
+        </div>
+      </article>
+
+      <article class="photo">
+        <img
+          src="https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=1200&q=80"
+          alt="Aerial view of winding river through an autumn valley at sunset"
+          loading="lazy"
+        >
+        <div class="photo-info">
+          <h3>Valley Serpentine</h3>
+          <span>Aerial</span>
+        </div>
+      </article>
+
+      <article class="photo">
+        <img
+          src="https://images.unsplash.com/photo-1518173946687-a4c8892bbd9f?w=1200&q=80"
+          alt="Black-and-white long exposure of ocean waves washing over smooth rocks"
+          loading="lazy"
+        >
+        <div class="photo-info">
+          <h3>Tidal Flow</h3>
+          <span>Seascape</span>
+        </div>
+      </article>
+
+    </section>
+  </main>
+
+  <!-- ─── Scripts ─────────────────────────────────────────────────────────── -->
+  <!-- Script tag at the bottom of <body> so the DOM is ready before the
+       DOMContentLoaded listener fires (also works with the event itself). -->
+  <script src="script.js"></script>
+</body>
+</html>
