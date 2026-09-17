@@ -469,86 +469,114 @@ const LightboxController = (() => {
 // Wire up the lightbox (and any other page-level JS) once the DOM is ready.
 
 // ─── KeyboardSound ────────────────────────────────────────────────────────────
-// Synthesises a soft mechanical key-click using the Web Audio API.
+// Synthesises a loud mechanical key-click using the Web Audio API.
 // No audio file required — runs entirely in the browser.
 
 const KeyboardSound = (() => {
-  let _ctx = null;
+  let _ctx     = null;
   let _enabled = true;
+  let _unlocked = false;
 
-  /** Lazily create (or resume) the AudioContext on first user interaction. */
+  /** Lazily create and unlock the AudioContext on first interaction. */
   function _getContext() {
     if (!_ctx) {
       _ctx = new (window.AudioContext || window.webkitAudioContext)();
     }
-    if (_ctx.state === 'suspended') _ctx.resume();
+    if (_ctx.state === 'suspended') {
+      _ctx.resume();
+    }
     return _ctx;
   }
 
   /**
-   * Play a single soft key-click.
-   * Layered: short noise burst (click transient) + low sine thud (body).
+   * Play a loud mechanical key-click.
+   * Three layers: sharp noise transient + mid punch + low thud.
    */
   function play() {
     if (!_enabled) return;
     try {
-      const ctx  = _getContext();
-      const now  = ctx.currentTime;
+      const ctx = _getContext();
+      if (ctx.state !== 'running') return;
+      const now = ctx.currentTime;
 
-      /* ── Noise burst — the crisp "click" transient ── */
-      const bufferSize = ctx.sampleRate * 0.04; // 40 ms of noise
-      const buffer     = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
-      const data       = buffer.getChannelData(0);
-      for (let i = 0; i < bufferSize; i++) {
-        data[i] = (Math.random() * 2 - 1);
-      }
+      // Master gain — loud
+      const master = ctx.createGain();
+      master.gain.setValueAtTime(1.8, now);
+      master.connect(ctx.destination);
 
-      const noiseSource = ctx.createBufferSource();
-      noiseSource.buffer = buffer;
+      /* ── Layer 1: Sharp noise transient (the "click") ── */
+      const bufLen = Math.floor(ctx.sampleRate * 0.055);
+      const buf    = ctx.createBuffer(1, bufLen, ctx.sampleRate);
+      const data   = buf.getChannelData(0);
+      for (let i = 0; i < bufLen; i++) data[i] = Math.random() * 2 - 1;
 
-      // Band-pass around 3 kHz — gives it that "tick" character
-      const bandpass = ctx.createBiquadFilter();
-      bandpass.type            = 'bandpass';
-      bandpass.frequency.value = 3000;
-      bandpass.Q.value         = 0.8;
+      const noise = ctx.createBufferSource();
+      noise.buffer = buf;
+
+      const bp = ctx.createBiquadFilter();
+      bp.type            = 'bandpass';
+      bp.frequency.value = 4500;
+      bp.Q.value         = 1.2;
 
       const noiseGain = ctx.createGain();
-      noiseGain.gain.setValueAtTime(0.18, now);
-      noiseGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.04);
+      noiseGain.gain.setValueAtTime(1.5, now);
+      noiseGain.gain.exponentialRampToValueAtTime(0.001, now + 0.055);
 
-      noiseSource.connect(bandpass);
-      bandpass.connect(noiseGain);
-      noiseGain.connect(ctx.destination);
-      noiseSource.start(now);
-      noiseSource.stop(now + 0.04);
+      noise.connect(bp);
+      bp.connect(noiseGain);
+      noiseGain.connect(master);
+      noise.start(now);
+      noise.stop(now + 0.055);
 
-      /* ── Sine thud — soft low-frequency body ── */
-      const osc     = ctx.createOscillator();
-      osc.type      = 'sine';
-      osc.frequency.setValueAtTime(180, now);
-      osc.frequency.exponentialRampToValueAtTime(60, now + 0.06);
+      /* ── Layer 2: Mid-range punch ── */
+      const mid = ctx.createOscillator();
+      mid.type = 'square';
+      mid.frequency.setValueAtTime(600, now);
+      mid.frequency.exponentialRampToValueAtTime(200, now + 0.05);
 
-      const oscGain = ctx.createGain();
-      oscGain.gain.setValueAtTime(0.12, now);
-      oscGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.06);
+      const midGain = ctx.createGain();
+      midGain.gain.setValueAtTime(0.9, now);
+      midGain.gain.exponentialRampToValueAtTime(0.001, now + 0.05);
 
-      osc.connect(oscGain);
-      oscGain.connect(ctx.destination);
-      osc.start(now);
-      osc.stop(now + 0.06);
+      mid.connect(midGain);
+      midGain.connect(master);
+      mid.start(now);
+      mid.stop(now + 0.05);
+
+      /* ── Layer 3: Low thud (body resonance) ── */
+      const thud = ctx.createOscillator();
+      thud.type = 'sine';
+      thud.frequency.setValueAtTime(220, now);
+      thud.frequency.exponentialRampToValueAtTime(50, now + 0.08);
+
+      const thudGain = ctx.createGain();
+      thudGain.gain.setValueAtTime(1.0, now);
+      thudGain.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
+
+      thud.connect(thudGain);
+      thudGain.connect(master);
+      thud.start(now);
+      thud.stop(now + 0.08);
 
     } catch (e) {
-      // Silently ignore — AudioContext not available or suspended
+      // AudioContext unavailable
     }
   }
 
-  /** Toggle sound on/off (used by the mute button). */
+  /** Unlock AudioContext on first user gesture (required by browsers). */
+  function unlock() {
+    if (_unlocked) return;
+    _unlocked = true;
+    _getContext();
+  }
+
+  /** Toggle sound on/off. */
   function toggle() {
     _enabled = !_enabled;
     return _enabled;
   }
 
-  return { play, toggle };
+  return { play, unlock, toggle };
 })();
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -568,8 +596,20 @@ document.addEventListener('DOMContentLoaded', () => {
   document.addEventListener('keydown', (e) => {
     // Skip modifier-only keys
     if (['Shift','Control','Alt','Meta','CapsLock','Tab'].includes(e.key)) return;
+    KeyboardSound.unlock();
     KeyboardSound.play();
   });
+
+  // ── Also play on mouse clicks anywhere on the page ───────────────────────
+  document.addEventListener('click', () => {
+    KeyboardSound.unlock();
+    KeyboardSound.play();
+  });
+
+  // ── Unlock AudioContext on first touch (mobile) ──────────────────────────
+  document.addEventListener('touchstart', () => {
+    KeyboardSound.unlock();
+  }, { once: true });
 
   // ── Mute / unmute toggle button ─────────────────────────────────────────
   const muteBtn = document.createElement('button');
