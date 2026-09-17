@@ -468,6 +468,89 @@ const LightboxController = (() => {
 // ─── Bootstrap ───────────────────────────────────────────────────────────────
 // Wire up the lightbox (and any other page-level JS) once the DOM is ready.
 
+// ─── KeyboardSound ────────────────────────────────────────────────────────────
+// Synthesises a soft mechanical key-click using the Web Audio API.
+// No audio file required — runs entirely in the browser.
+
+const KeyboardSound = (() => {
+  let _ctx = null;
+  let _enabled = true;
+
+  /** Lazily create (or resume) the AudioContext on first user interaction. */
+  function _getContext() {
+    if (!_ctx) {
+      _ctx = new (window.AudioContext || window.webkitAudioContext)();
+    }
+    if (_ctx.state === 'suspended') _ctx.resume();
+    return _ctx;
+  }
+
+  /**
+   * Play a single soft key-click.
+   * Layered: short noise burst (click transient) + low sine thud (body).
+   */
+  function play() {
+    if (!_enabled) return;
+    try {
+      const ctx  = _getContext();
+      const now  = ctx.currentTime;
+
+      /* ── Noise burst — the crisp "click" transient ── */
+      const bufferSize = ctx.sampleRate * 0.04; // 40 ms of noise
+      const buffer     = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+      const data       = buffer.getChannelData(0);
+      for (let i = 0; i < bufferSize; i++) {
+        data[i] = (Math.random() * 2 - 1);
+      }
+
+      const noiseSource = ctx.createBufferSource();
+      noiseSource.buffer = buffer;
+
+      // Band-pass around 3 kHz — gives it that "tick" character
+      const bandpass = ctx.createBiquadFilter();
+      bandpass.type            = 'bandpass';
+      bandpass.frequency.value = 3000;
+      bandpass.Q.value         = 0.8;
+
+      const noiseGain = ctx.createGain();
+      noiseGain.gain.setValueAtTime(0.18, now);
+      noiseGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.04);
+
+      noiseSource.connect(bandpass);
+      bandpass.connect(noiseGain);
+      noiseGain.connect(ctx.destination);
+      noiseSource.start(now);
+      noiseSource.stop(now + 0.04);
+
+      /* ── Sine thud — soft low-frequency body ── */
+      const osc     = ctx.createOscillator();
+      osc.type      = 'sine';
+      osc.frequency.setValueAtTime(180, now);
+      osc.frequency.exponentialRampToValueAtTime(60, now + 0.06);
+
+      const oscGain = ctx.createGain();
+      oscGain.gain.setValueAtTime(0.12, now);
+      oscGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.06);
+
+      osc.connect(oscGain);
+      oscGain.connect(ctx.destination);
+      osc.start(now);
+      osc.stop(now + 0.06);
+
+    } catch (e) {
+      // Silently ignore — AudioContext not available or suspended
+    }
+  }
+
+  /** Toggle sound on/off (used by the mute button). */
+  function toggle() {
+    _enabled = !_enabled;
+    return _enabled;
+  }
+
+  return { play, toggle };
+})();
+
 document.addEventListener('DOMContentLoaded', () => {
   // Mobile menu toggle (existing functionality)
   const menuButton = document.getElementById('menuButton');
@@ -480,4 +563,32 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Lightbox — early-exits gracefully if no gallery images exist (Req 8.3)
   LightboxController.init();
+
+  // ── Keyboard typing sound on every keydown ──────────────────────────────
+  document.addEventListener('keydown', (e) => {
+    // Skip modifier-only keys
+    if (['Shift','Control','Alt','Meta','CapsLock','Tab'].includes(e.key)) return;
+    KeyboardSound.play();
+  });
+
+  // ── Mute / unmute toggle button ─────────────────────────────────────────
+  const muteBtn = document.createElement('button');
+  muteBtn.id = 'soundToggle';
+  muteBtn.setAttribute('aria-label', 'Toggle keyboard sound');
+  muteBtn.setAttribute('title', 'Toggle keyboard sound');
+  muteBtn.innerHTML = `
+    <svg id="soundIcon" xmlns="http://www.w3.org/2000/svg" width="18" height="18"
+      viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+      <path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>
+      <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
+    </svg>`;
+  document.body.appendChild(muteBtn);
+
+  muteBtn.addEventListener('click', () => {
+    const on = KeyboardSound.toggle();
+    muteBtn.classList.toggle('muted', !on);
+    muteBtn.setAttribute('aria-label', on ? 'Mute keyboard sound' : 'Unmute keyboard sound');
+  });
 });

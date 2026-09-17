@@ -828,3 +828,43 @@ article.photo:focus-visible .photo-info {
     height: 320px;
   }
 }
+
+/* ─── Sound toggle button ────────────────────────────────────────────────────*/
+
+#soundToggle {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 300;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 1px solid rgba(216, 181, 138, 0.35);
+  background-color: rgba(23, 23, 23, 0.85);
+  backdrop-filter: blur(6px);
+  color: var(--color-accent);
+  cursor: pointer;
+  transition: border-color 200ms ease, transform 200ms ease;
+}
+
+#soundToggle:hover {
+  border-color: var(--color-accent);
+  transform: scale(1.1);
+}
+
+#soundToggle.muted {
+  color: var(--color-muted);
+  border-color: rgba(136, 136, 136, 0.3);
+}
+
+@media (max-width: 480px) {
+  #soundToggle {
+    bottom: 16px;
+    right: 16px;
+    width: 38px;
+    height: 38px;
+  }
+}
