@@ -868,3 +868,48 @@ article.photo:focus-visible .photo-info {
     height: 38px;
   }
 }
+
+/* ─── Music toggle button (nav) ─────────────────────────────────────────────*/
+
+#musicToggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid rgba(216, 181, 138, 0.35);
+  background: transparent;
+  color: var(--color-accent);
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: border-color 200ms ease, color 200ms ease, transform 200ms ease;
+}
+
+#musicToggle:hover {
+  border-color: var(--color-accent);
+  transform: scale(1.1);
+}
+
+/* Paused state — dims the icon */
+#musicToggle.paused {
+  color: var(--color-muted);
+  border-color: rgba(136,136,136,0.3);
+}
+
+/* Pulse animation while music is playing */
+@keyframes musicPulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(216,181,138,0.4); }
+  50%       { box-shadow: 0 0 0 6px rgba(216,181,138,0); }
+}
+
+#musicToggle:not(.paused) {
+  animation: musicPulse 2s ease-in-out infinite;
+}
+
+@media (max-width: 640px) {
+  #musicToggle {
+    width: 32px;
+    height: 32px;
+  }
+}

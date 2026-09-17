@@ -592,7 +592,37 @@ document.addEventListener('DOMContentLoaded', () => {
   // Lightbox — early-exits gracefully if no gallery images exist (Req 8.3)
   LightboxController.init();
 
-  // ── Keyboard typing sound on every keydown ──────────────────────────────
+  // ── Background music ─────────────────────────────────────────────────────
+  const bgMusic = document.getElementById('bgMusic');
+  const musicBtn = document.getElementById('musicToggle');
+  const musicIcon = document.getElementById('musicIcon');
+
+  if (bgMusic && musicBtn) {
+    bgMusic.volume = 0.18; // soft — not too loud
+
+    // Try autoplay; browsers usually block it until user interacts
+    const tryPlay = () => {
+      bgMusic.play().catch(() => {});
+    };
+
+    // Attempt on load, then on first interaction
+    tryPlay();
+    document.addEventListener('click', () => { if (bgMusic.paused) bgMusic.play().catch(() => {}); }, { once: true });
+    document.addEventListener('keydown', () => { if (bgMusic.paused) bgMusic.play().catch(() => {}); }, { once: true });
+
+    musicBtn.addEventListener('click', (e) => {
+      e.stopPropagation(); // don't double-trigger the click-to-play above
+      if (bgMusic.paused) {
+        bgMusic.play().catch(() => {});
+        musicBtn.classList.remove('paused');
+        musicBtn.setAttribute('aria-label', 'Pause background music');
+      } else {
+        bgMusic.pause();
+        musicBtn.classList.add('paused');
+        musicBtn.setAttribute('aria-label', 'Play background music');
+      }
+    });
+  }
   document.addEventListener('keydown', (e) => {
     // Skip modifier-only keys
     if (['Shift','Control','Alt','Meta','CapsLock','Tab'].includes(e.key)) return;
