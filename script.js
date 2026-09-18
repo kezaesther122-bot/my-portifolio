@@ -499,9 +499,9 @@ const KeyboardSound = (() => {
       if (ctx.state !== 'running') return;
       const now = ctx.currentTime;
 
-      // Master gain — loud
+      // Master gain — quiet
       const master = ctx.createGain();
-      master.gain.setValueAtTime(1.8, now);
+      master.gain.setValueAtTime(0.35, now);
       master.connect(ctx.destination);
 
       /* ── Layer 1: Sharp noise transient (the "click") ── */
@@ -519,7 +519,7 @@ const KeyboardSound = (() => {
       bp.Q.value         = 1.2;
 
       const noiseGain = ctx.createGain();
-      noiseGain.gain.setValueAtTime(1.5, now);
+      noiseGain.gain.setValueAtTime(0.5, now);
       noiseGain.gain.exponentialRampToValueAtTime(0.001, now + 0.055);
 
       noise.connect(bp);
@@ -535,7 +535,7 @@ const KeyboardSound = (() => {
       mid.frequency.exponentialRampToValueAtTime(200, now + 0.05);
 
       const midGain = ctx.createGain();
-      midGain.gain.setValueAtTime(0.9, now);
+      midGain.gain.setValueAtTime(0.25, now);
       midGain.gain.exponentialRampToValueAtTime(0.001, now + 0.05);
 
       mid.connect(midGain);
@@ -550,7 +550,7 @@ const KeyboardSound = (() => {
       thud.frequency.exponentialRampToValueAtTime(50, now + 0.08);
 
       const thudGain = ctx.createGain();
-      thudGain.gain.setValueAtTime(1.0, now);
+      thudGain.gain.setValueAtTime(0.2, now);
       thudGain.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
 
       thud.connect(thudGain);
